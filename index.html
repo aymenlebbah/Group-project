@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MindWell — Mental Health & Wellbeing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+/* ══════════════════════════════════════════════════════════════
+   CSS VARIABLES & RESET
+   ══════════════════════════════════════════════════════════════ */
+:root {
+  --bg: #FDF6EE;
+  --bg2: #F5EDE3;
+  --card: #FFFFFF;
+  --text: #2D3436;
+  --text2: #636E72;
+  --muted: #A4A8AB;
+  --sage: #7BAE7F;
+  --sage-l: #E8F4E5;
+  --warm: #E8A87C;
+  --warm-l: #FFF0E6;
+  --lav: #B8A9D4;
+  --lav-l: #F0ECF7;
+  --sky: #82CCDD;
+  --sky-l: #E6F5F9;
+  --rose: #E77F67;
+  --rose-l: #FDEEEB;
+  --gold: #F6B93B;
+  --r-sm: 12px;
+  --r-md: 16px;
+  --r-lg: 24px;
+  --r-full: 9999px;
+  --sh: 0 2px 16px rgba(0,0,0,0.04);
+  --sh2: 0 4px 24px rgba(0,0,0,0.07);
+  --tr: all 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;}
+
+/* ── App Shell ── */
+#app{max-width:430px;margin:0 auto;height:100vh;position:relative;display:flex;flex-direction:column;overflow:hidden;background:var(--bg);}
+#screen-area{flex:1;overflow-y:auto;overflow-x:hidden;padding:24px 20px 100px;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;}
+#screen-area::-webkit-scrollbar{width:3px;}
+#screen-area::-webkit-scrollbar-thumb{background:var(--muted);border-radius:4px;}
+.heading{font-family:'DM Serif Display',serif;font-weight:400;letter-spacing:-0.02em;}
+
+/* ── Bottom Nav ── */
+#nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:rgba(255,255,255,0.93);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(0,0,0,0.04);display:flex;justify-content:space-around;padding:6px 2px calc(6px + env(safe-area-inset-bottom));z-index:100;}
+.nav-btn{display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 8px;border:none;background:none;cursor:pointer;font-family:'Nunito',sans-serif;font-size:9.5px;font-weight:700;color:var(--muted);position:relative;transition:var(--tr);}
+.nav-btn.active{color:var(--sage);}
+.nav-btn.active::before{content:'';position:absolute;top:-6px;left:50%;transform:translateX(-50%);width:18px;height:3px;background:var(--sage);border-radius:var(--r-full);}
+.nav-btn span{font-size:21px;line-height:1;}
+
+/* ── Animations ── */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}
+@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(-20px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
+@keyframes toastOut{to{opacity:0;transform:translateX(-50%) translateY(-20px);}}
+.anim-fade{animation:fadeIn 0.4s ease;}
+.anim-slide{animation:slideUp 0.5s ease;}
+
+/* ── Cards ── */
+.card{background:var(--card);border-radius:var(--r-md);padding:20px;box-shadow:var(--sh);transition:var(--tr);margin-bottom:14px;}
+
+/* ── Buttons ── */
+.btn{width:100%;padding:15px;border:none;border-radius:var(--r-md);background:var(--sage);color:#fff;font-family:'Nunito',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:var(--tr);letter-spacing:0.01em;}
+.btn:hover{background:#6A9D6E;transform:translateY(-1px);box-shadow:0 4px 16px rgba(123,174,127,0.3);}
+.btn:disabled{opacity:0.45;cursor:default;transform:none;box-shadow:none;}
+.btn-warm{background:var(--warm);}
+.btn-warm:hover{background:#D4956A;}
+.btn-outline{padding:10px 20px;border:2px solid var(--sage);border-radius:var(--r-full);background:transparent;color:var(--sage);font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:var(--tr);width:100%;}
+.btn-outline:hover{background:var(--sage-l);}
+.btn-danger{padding:10px 20px;border:2px solid var(--rose);border-radius:var(--r-full);background:transparent;color:var(--rose);font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:var(--tr);width:100%;}
+.btn-danger:hover{background:var(--rose-l);}
+.btn-sm{padding:8px 16px;border:none;border-radius:var(--r-full);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:var(--tr);}
+.btn-back{background:none;border:none;cursor:pointer;font-size:14px;font-weight:700;color:var(--text2);font-family:'Nunito',sans-serif;margin-bottom:16px;padding:0;}
+
+/* ── Mood Grid ── */
+.mood-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+.mood-opt{display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 8px;border-radius:var(--r-md);border:2px solid transparent;background:var(--bg2);cursor:pointer;transition:var(--tr);font-family:'Nunito',sans-serif;font-weight:600;font-size:13px;color:var(--text2);}
+.mood-opt:hover{transform:translateY(-2px);box-shadow:var(--sh2);}
+.mood-opt.sel{border-color:var(--sage);background:var(--sage-l);color:var(--text);}
+.mood-opt .emoji{font-size:36px;line-height:1;transition:var(--tr);}
+.mood-opt.sel .emoji{animation:pulse 0.5s ease;}
+
+/* ── Textarea / Input ── */
+textarea,input[type="text"],input[type="email"]{width:100%;padding:14px 16px;border:2px solid var(--bg2);border-radius:var(--r-md);font-family:'Nunito',sans-serif;font-size:15px;line-height:1.7;color:var(--text);background:var(--card);resize:vertical;transition:var(--tr);outline:none;}
+textarea:focus,input:focus{border-color:var(--sage);box-shadow:0 0 0 4px rgba(123,174,127,0.1);}
+textarea::placeholder,input::placeholder{color:var(--muted);}
+textarea{min-height:140px;}
+
+/* ── Chips ── */
+.chip{display:inline-flex;padding:8px 16px;border-radius:var(--r-full);border:2px solid var(--bg2);background:var(--card);font-family:'Nunito',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:var(--tr);color:var(--text2);}
+.chip.active{border-color:var(--sage);background:var(--sage-l);color:var(--sage);}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+
+/* ── Progress ── */
+.prog-bar{width:100%;height:8px;background:var(--bg2);border-radius:var(--r-full);overflow:hidden;}
+.prog-fill{height:100%;border-radius:var(--r-full);background:linear-gradient(90deg,var(--sage),#A8D8A8);transition:width 0.6s cubic-bezier(0.4,0,0.2,1);}
+
+/* ── Quest ── */
+.quest{display:flex;align-items:center;gap:14px;padding:16px;background:var(--card);border-radius:var(--r-md);box-shadow:var(--sh);transition:var(--tr);cursor:pointer;margin-bottom:10px;}
+.quest:hover{transform:translateX(4px);box-shadow:var(--sh2);}
+.quest.done{opacity:0.55;background:var(--sage-l);}
+.quest-ico{width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-size:24px;background:var(--bg2);border-radius:var(--r-sm);flex-shrink:0;}
+.quest.done .quest-ico{background:var(--sage);}
+
+/* ── Badge ── */
+.badge{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 6px;text-align:center;}
+.badge-ico{width:54px;height:54px;display:flex;align-items:center;justify-content:center;font-size:26px;background:var(--bg2);border-radius:50%;transition:var(--tr);}
+.badge-ico.earned{background:linear-gradient(135deg,#FFD93D,#FFA62B);box-shadow:0 4px 16px rgba(255,166,43,0.3);animation:float 3s ease-in-out infinite;}
+.badge-ico.locked{filter:grayscale(1);opacity:0.4;}
+
+/* ── Crisis ── */
+.crisis{display:flex;gap:14px;padding:16px;background:var(--card);border-radius:var(--r-md);box-shadow:var(--sh);border-left:4px solid var(--rose);margin-bottom:12px;}
+
+/* ── Streak / Points ── */
+.streak{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;background:linear-gradient(135deg,#FFF0E6,#FFE0CC);border-radius:var(--r-full);font-weight:700;color:var(--warm);font-size:15px;}
+.points{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;background:linear-gradient(135deg,var(--lav-l),#E4DAF0);border-radius:var(--r-full);font-weight:700;color:var(--lav);font-size:15px;}
+
+/* ── Sentiment Tag ── */
+.stag{display:inline-flex;padding:5px 13px;border-radius:var(--r-full);font-size:12px;font-weight:700;}
+
+/* ── Toggle ── */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;}
+.toggle{width:46px;height:26px;border-radius:13px;background:var(--bg2);cursor:pointer;position:relative;transition:var(--tr);flex-shrink:0;border:none;}
+.toggle.on{background:var(--sage);}
+.toggle::after{content:'';width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:3px;left:3px;transition:var(--tr);box-shadow:0 1px 4px rgba(0,0,0,0.15);}
+.toggle.on::after{left:23px;}
+
+/* ── Toast ── */
+#toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);max-width:380px;width:90%;padding:14px 20px;background:var(--sage);color:#fff;border-radius:var(--r-md);font-family:'Nunito',sans-serif;font-weight:700;font-size:14px;text-align:center;z-index:300;box-shadow:0 8px 32px rgba(0,0,0,0.12);animation:toastIn 0.4s ease;display:none;}
+#toast.show{display:block;}
+#toast.hiding{animation:toastOut 0.4s ease forwards;}
+
+/* ── Save Indicator ── */
+#save-ind{position:fixed;top:10px;right:10px;display:none;align-items:center;gap:5px;padding:5px 12px;background:rgba(255,255,255,0.9);backdrop-filter:blur(10px);border-radius:var(--r-full);font-size:11px;font-weight:700;color:var(--sage);z-index:150;box-shadow:var(--sh);animation:fadeIn 0.3s ease;}
+#save-ind.show{display:flex;}
+#save-ind::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--sage);}
+
+/* ── Modal ── */
+#modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:none;align-items:center;justify-content:center;z-index:400;animation:fadeIn 0.2s ease;}
+#modal-overlay.show{display:flex;}
+.modal-box{background:var(--card);border-radius:var(--r-lg);padding:32px 24px;max-width:340px;width:90%;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.12);}
+
+/* ── Boot ── */
+#boot{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:20px;animation:fadeIn 0.6s ease;}
+#boot .spinner{width:44px;height:44px;border:4px solid var(--bg2);border-top-color:var(--sage);border-radius:50%;animation:spin 1s linear infinite;}
+
+/* ── Blobs ── */
+.blob{position:absolute;border-radius:50%;filter:blur(60px);opacity:0.15;pointer-events:none;z-index:0;}
+
+/* ── Chart Container ── */
+.chart-wrap{position:relative;width:100%;height:200px;margin:10px 0;}
+.chart-wrap-sm{height:130px;}
+
+/* ── Dots ── */
+.dots{display:flex;justify-content:center;gap:8px;margin-top:18px;}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--bg2);transition:var(--tr);}
+.dot.active{background:var(--sage);}
+
+/* ── Loading dots ── */
+.ldots{display:flex;gap:6px;align-items:center;justify-content:center;padding:12px;}
+.ldots i{width:8px;height:8px;background:var(--sage);border-radius:50%;display:block;animation:bounce 1.4s ease-in-out infinite;}
+.ldots i:nth-child(2){animation-delay:0.16s;}
+.ldots i:nth-child(3){animation-delay:0.32s;}
+@keyframes bounce{0%,80%,100%{transform:scale(0);}40%{transform:scale(1);}}
+
+/* ── Utility ── */
+.flex{display:flex;}.gap-8{gap:8px;}.gap-12{gap:12px;}.gap-14{gap:14px;}.gap-20{gap:20px;}
+.items-center{align-items:center;}.justify-between{justify-content:space-between;}
+.flex-1{flex:1;}.flex-col{flex-direction:column;}
+.mb-4{margin-bottom:4px;}.mb-8{margin-bottom:8px;}.mb-12{margin-bottom:12px;}.mb-16{margin-bottom:16px;}.mb-20{margin-bottom:20px;}.mb-24{margin-bottom:24px;}.mt-8{margin-top:8px;}.mt-12{margin-top:12px;}.mt-20{margin-top:20px;}.mt-24{margin-top:24px;}
+.text-center{text-align:center;}.text-sm{font-size:13px;}.text-xs{font-size:12px;}.text-tiny{font-size:11px;}
+.fw-700{font-weight:700;}.fw-600{font-weight:600;}
+.c-muted{color:var(--muted);}.c-text2{color:var(--text2);}.c-sage{color:var(--sage);}.c-warm{color:var(--warm);}.c-rose{color:var(--rose);}.c-lav{color:var(--lav);}
+.lh-15{line-height:1.5;}.lh-16{line-height:1.6;}
+.w-full{width:100%;}.rel{position:relative;}.z1{z-index:1;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.hidden{display:none!important;}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <!-- Boot Screen -->
+  <div id="boot">
+    <div style="font-size:54px;">🌿</div>
+    <div class="heading" style="font-size:28px;">MindWell</div>
+    <div class="spinner"></div>
+    <div class="text-sm c-muted fw-600">Loading your data...</div>
+  </div>
+
+  <!-- Main Content -->
+  <div id="screen-area" class="hidden"></div>
+
+  <!-- Toast -->
+  <div id="toast"></div>
+
+  <!-- Save Indicator -->
+  <div id="save-ind">Saving...</div>
+
+  <!-- Modal -->
+  <div id="modal-overlay">
+    <div class="modal-box" id="modal-box"></div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <nav id="nav" class="hidden">
+    <button class="nav-btn active" data-screen="home"><span>🏠</span>Home</button>
+    <button class="nav-btn" data-screen="journal"><span>📝</span>Journal</button>
+    <button class="nav-btn" data-screen="graphs"><span>📊</span>Moods</button>
+    <button class="nav-btn" data-screen="quests"><span>⭐</span>Quests</button>
+    <button class="nav-btn" data-screen="insights"><span>✨</span>Insights</button>
+    <button class="nav-btn" data-screen="support"><span>🆘</span>Support</button>
+  </nav>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════
+   CONSTANTS
+   ══════════════════════════════════════════════════════════════════ */
+const MOODS = [
+  { key:"happy", emoji:"😊", label:"Happy", color:"#F6B93B", value:5 },
+  { key:"calm", emoji:"😌", label:"Calm", color:"#78E08F", value:4 },
+  { key:"neutral", emoji:"😐", label:"Neutral", color:"#82CCDD", value:3 },
+  { key:"stressed", emoji:"😤", label:"Stressed", color:"#E77F67", value:2 },
+  { key:"anxious", emoji:"😰", label:"Anxious", color:"#CF6A87", value:2 },
+  { key:"sad", emoji:"😢", label:"Sad", color:"#786FA6", value:1 },
+];
+
+const QUESTS = [
+  { id:1, title:"5-Minute Breathing", desc:"Complete a guided breathing exercise", icon:"🌬️", points:10 },
+  { id:2, title:"Gratitude Notes", desc:"Write 3 things you're grateful for", icon:"🙏", points:15 },
+  { id:3, title:"Short Walk", desc:"Take a 10-minute walk outside", icon:"🚶", points:20 },
+  { id:4, title:"Stretch Break", desc:"Stretch your body for 5 minutes", icon:"🧘", points:10 },
+  { id:5, title:"Hydration Check", desc:"Drink a full glass of water", icon:"💧", points:5 },
+  { id:6, title:"Mindful Moment", desc:"Sit quietly and observe for 3 minutes", icon:"🧠", points:10 },
+  { id:7, title:"Kind Words", desc:"Send a kind message to someone", icon:"💌", points:15 },
+  { id:8, title:"Digital Detox", desc:"30 minutes away from screens", icon:"📵", points:25 },
+];
+
+const PROMPTS = [
+  "What made you feel grateful today?",
+  "What challenged you today, and how did you handle it?",
+  "What is something positive that happened today?",
+  "Describe a moment today when you felt at peace.",
+  "What would you tell a friend who felt the way you do right now?",
+  "What is one thing you can do tomorrow to take care of yourself?",
+  "What emotion has been strongest today, and why?",
+  "Write about something that made you smile recently.",
+];
+
+const CHECKIN_QS = [
+  "How are you feeling right now?",
+  "What influenced your mood today?",
+  "Did anything stressful happen today?",
+  "What made you feel good today?",
+];
+
+const DAYNAMES = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+
+const BADGES = [
+  { id:"first_checkin", title:"First Step", desc:"Complete your first check-in", icon:"⭐" },
+  { id:"streak_3", title:"On a Roll", desc:"3-day check-in streak", icon:"🔥" },
+  { id:"streak_7", title:"Week Warrior", desc:"7-day check-in streak", icon:"💪" },
+  { id:"quest_5", title:"Quest Explorer", desc:"Complete 5 quests", icon:"🏆" },
+  { id:"journal_3", title:"Reflective Mind", desc:"Write 3 journal entries", icon:"📝" },
+  { id:"points_100", title:"Century Club", desc:"Earn 100 points", icon:"💎" },
+];
+
+const CRISIS = [
+  { name:"Samaritans", num:"116 123", desc:"24/7 emotional support" },
+  { name:"Crisis Text Line", num:"Text SHOUT to 85258", desc:"Free 24/7 text support" },
+  { name:"CALM Helpline", num:"0800 58 58 58", desc:"For men, 5pm–midnight daily" },
+  { name:"Papyrus HOPELINEUK", num:"0800 068 4141", desc:"For under 35s" },
+  { name:"Mind Infoline", num:"0300 123 3393", desc:"Mon–Fri 9am–6pm" },
+  { name:"NHS Urgent Help", num:"111", desc:"Press option 2 for mental health crisis" },
+];
+
+const SCOLORS = {
+  happy:{bg:"#FFF8E1",c:"#F6B93B"}, calm:{bg:"#E8F4E5",c:"#7BAE7F"},
+  hopeful:{bg:"#E6F5F9",c:"#82CCDD"}, grateful:{bg:"#FFF0E6",c:"#E8A87C"},
+  stressed:{bg:"#FDEEEB",c:"#E77F67"}, anxious:{bg:"#F0ECF7",c:"#B8A9D4"},
+  sad:{bg:"#F0ECF7",c:"#786FA6"}, frustrated:{bg:"#FDEEEB",c:"#E77F67"},
+  mixed:{bg:"#F5EDE3",c:"#636E72"},
+};
+
+/* ══════════════════════════════════════════════════════════════════
+   STORAGE LAYER (localStorage)
+   ══════════════════════════════════════════════════════════════════ */
+const KEYS = {
+  PROFILE:  "mindwell_profile",
+  MOODS:    "mindwell_moods",
+  JOURNALS: "mindwell_journals",
+  PROGRESS: "mindwell_progress",
+  INSIGHTS: "mindwell_insights",
+};
+
+function store(key, val) {
+  try { localStorage.setItem(key, JSON.stringify(val)); showSaveIndicator(); return true; }
+  catch(e) { console.error("Save failed:", e); return false; }
+}
+function load(key, fallback) {
+  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+  catch { return fallback; }
+}
+function remove(key) { try { localStorage.removeItem(key); } catch {} }
+
+/* ══════════════════════════════════════════════════════════════════
+   APP STATE (in memory, synced to localStorage on change)
+   ══════════════════════════════════════════════════════════════════ */
+let state = {
+  profile: { createdAt: new Date().toISOString(), reminders: { dailyCheckin:true, journaling:true, quests:true, hydration:false, relaxation:false } },
+  moods: { history:[], todayMood:null, todayDate:null },
+  journals: { entries:[] },
+  progress: { completedQuests:[], completedQuestsDate:null, totalQuestsCompleted:0, totalPoints:0, streak:0, lastActiveDate:null, earnedBadgeIds:[] },
+  insights: { aiSuggestions:[], lastGenerated:null },
+};
+
+// Ephemeral UI state
+let ui = {
+  screen: "home",
+  selectedMood: null,
+  moodNote: "",
+  checkinStep: 0,
+  checkinAnswers: {},
+  journalText: "",
+  promptIdx: 0,
+  journalMode: "guided",
+  sentimentResult: null,
+  analysing: false,
+  loadingSugg: false,
+  graphPeriod: "2w",
+  supportForm: { name:"", email:"", message:"", type:"feedback" },
+  supportSubmitted: false,
+};
+
+let charts = {};
+let saveTimer = null;
+
+/* ══════════════════════════════════════════════════════════════════
+   HELPERS
+   ══════════════════════════════════════════════════════════════════ */
+function todayStr() { return new Date().toISOString().slice(0,10); }
+function greeting() { const h=new Date().getHours(); return h<12?"Good morning":h<17?"Good afternoon":"Good evening"; }
+function fmtDate(d) { return d.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"}); }
+function moodByKey(k) { return MOODS.find(m=>m.key===k); }
+function sc(e) { return SCOLORS[e] || SCOLORS.mixed; }
+function calcStreak(lastDate, cur) {
+  const today = todayStr();
+  if(!lastDate) return 1;
+  if(lastDate===today) return cur;
+  const diff = Math.round((new Date(today)-new Date(lastDate))/(864e5));
+  return diff===1 ? cur+1 : 1;
+}
+function escHtml(s) { const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+
+function showSaveIndicator() {
+  const el = document.getElementById('save-ind');
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(()=>el.classList.remove('show'), 1200);
+}
+
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'show';
+  clearTimeout(el._t);
+  el._t = setTimeout(()=>{ el.classList.add('hiding'); setTimeout(()=>el.className='',400); },2600);
+}
+
+function showModal(html) {
+  document.getElementById('modal-box').innerHTML = html;
+  document.getElementById('modal-overlay').classList.add('show');
+}
+function hideModal() { document.getElementById('modal-overlay').classList.remove('show'); }
+
+function saveState() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(()=>{
+    store(KEYS.PROFILE, state.profile);
+    store(KEYS.MOODS, state.moods);
+    store(KEYS.JOURNALS, state.journals);
+    store(KEYS.PROGRESS, state.progress);
+    store(KEYS.INSIGHTS, state.insights);
+  }, 300);
+}
+
+function navigate(scr) {
+  ui.screen = scr;
+  render();
+  document.getElementById('screen-area').scrollTop = 0;
+  document.querySelectorAll('.nav-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.screen===scr);
+  });
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   BOOT
+   ══════════════════════════════════════════════════════════════════ */
+function boot() {
+  state.profile  = load(KEYS.PROFILE, state.profile);
+  state.moods    = load(KEYS.MOODS, state.moods);
+  state.journals = load(KEYS.JOURNALS, state.journals);
+  state.progress = load(KEYS.PROGRESS, state.progress);
+  state.insights = load(KEYS.INSIGHTS, state.insights);
+
+  // Daily resets
+  const today = todayStr();
+  if(state.progress.completedQuestsDate !== today) {
+    state.progress.completedQuests = [];
+    state.progress.completedQuestsDate = today;
+  }
+  if(state.moods.todayDate !== today) {
+    state.moods.todayMood = null;
+    state.moods.todayDate = today;
+  }
+  saveState();
+
+  setTimeout(()=>{
+    document.getElementById('boot').classList.add('hidden');
+    document.getElementById('screen-area').classList.remove('hidden');
+    document.getElementById('nav').classList.remove('hidden');
+    render();
+  }, 600);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   RENDER ENGINE
+   ══════════════════════════════════════════════════════════════════ */
+function render() {
+  const area = document.getElementById('screen-area');
+  const renderers = {
+    home: renderHome, checkin: renderCheckin, journal: renderJournal,
+    graphs: renderGraphs, quests: renderQuests, insights: renderInsights,
+    support: renderSupport, customerSupport: renderCustomerSupport, settings: renderSettings,
+  };
+  const fn = renderers[ui.screen] || renderHome;
+
+  // Destroy existing charts
+  Object.values(charts).forEach(c=>c.destroy());
+  charts = {};
+
+  area.innerHTML = fn();
+  area.className = 'anim-fade';
+
+  // Post-render: init charts
+  requestAnimationFrame(()=>initCharts());
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   SCREEN: HOME
+   ══════════════════════════════════════════════════════════════════ */
+function renderHome() {
+  const h = state.moods.history;
+  const p = state.progress;
+  const done = state.moods.todayMood !== null;
+  const moodObj = done ? moodByKey(state.moods.todayMood) : null;
+
+  // Predictive insight
+  const r5 = h.slice(-5);
+  const stressN = r5.filter(m=>m.mood==="stressed"||m.mood==="anxious").length;
+  let prediction = "";
+  if(stressN>=3) prediction = "You've been feeling stressed recently. Consider a relaxation exercise today to help reset.";
+  else if(r5.length>=3 && r5.every(m=>m.value>=4)) prediction = "You've been on a great streak! Keep nurturing these positive habits.";
+
+  let html = `
+    <div class="rel">
+      <div class="blob" style="width:200px;height:200px;background:#7BAE7F;top:-60px;right:-60px;position:absolute;"></div>
+      <div class="blob" style="width:150px;height:150px;background:#E8A87C;bottom:60px;left:-40px;position:absolute;"></div>
+      <div class="z1 rel">
+        <p class="text-xs fw-600 c-muted mb-4" style="letter-spacing:0.05em;text-transform:uppercase;">${fmtDate(new Date())}</p>
+        <h1 class="heading mb-4" style="font-size:30px;line-height:1.2;">${greeting()} 🌿</h1>
+        <p class="text-sm c-text2 mb-24 lh-15">${h.length>0?"Welcome back. Let's continue nurturing your wellbeing.":"Let's start your wellness journey today."}</p>
+
+        <div class="flex gap-12 mb-24">
+          <div class="streak flex-1">🔥 ${p.streak} day streak</div>
+          <div class="points flex-1">💎 ${p.totalPoints} pts</div>
+        </div>`;
+
+  if(prediction) {
+    html += `
+        <div class="card" style="background:linear-gradient(135deg,var(--sky-l),#D4EDF5);border:1px solid rgba(130,204,221,0.3);">
+          <div class="flex gap-12" style="align-items:flex-start;">
+            <span style="font-size:24px;">🔮</span>
+            <div><p class="fw-700 text-sm mb-4">Mood Prediction</p>
+            <p class="text-sm c-text2 lh-15">${prediction}</p></div>
+          </div>
+        </div>`;
+  }
+
+  if(!done) {
+    html += `
+        <div class="card" onclick="navigate('checkin')" style="cursor:pointer;border:2px dashed var(--sage);background:var(--sage-l);">
+          <div class="flex items-center gap-14">
+            <span style="font-size:32px;">🌱</span>
+            <div class="flex-1"><p class="fw-700" style="font-size:16px;">Daily Check-In</p>
+            <p class="text-sm c-text2">Take a moment to record how you feel</p></div>
+            <span style="font-size:20px;color:var(--sage);">→</span>
+          </div>
+        </div>`;
+  } else {
+    html += `
+        <div class="card" style="background:var(--sage-l);">
+          <div class="flex items-center gap-14">
+            <span style="font-size:32px;">${moodObj.emoji}</span>
+            <div><p class="fw-700" style="font-size:16px;">Today: ${moodObj.label}</p>
+            <p class="text-sm c-text2">Check-in complete! ✓</p></div>
+          </div>
+        </div>`;
+  }
+
+  // Quests preview
+  html += `<h3 class="fw-700 mb-12" style="font-size:16px;">Today's Quests</h3>`;
+  QUESTS.slice(0,3).forEach(q=>{
+    const d = p.completedQuests.includes(q.id);
+    html += `
+      <div class="quest ${d?'done':''}" onclick="doCompleteQuest(${q.id})">
+        <div class="quest-ico">${d?'✅':q.icon}</div>
+        <div class="flex-1"><p class="fw-700 text-sm">${q.title}</p><p class="text-xs c-muted">${q.desc}</p></div>
+        <span class="text-sm fw-700 ${d?'c-sage':'c-warm'}">${d?'✓':'+'+q.points}</span>
+      </div>`;
+  });
+  html += `<button class="btn-outline mt-8 mb-24" onclick="navigate('quests')">View All Quests →</button>`;
+
+  // Mini chart
+  if(h.length > 1) {
+    html += `
+      <div class="card mb-24">
+        <h3 class="fw-700 mb-16" style="font-size:16px;">Mood This Week</h3>
+        <div class="chart-wrap chart-wrap-sm"><canvas id="chart-home"></canvas></div>
+        <button class="btn-outline mt-12" onclick="navigate('graphs')">View Detailed Insights →</button>
+      </div>`;
+  }
+
+  // Settings & Help
+  html += `
+    <div class="grid-2 mb-20">
+      <div class="card text-center" onclick="navigate('settings')" style="cursor:pointer;padding:14px;">
+        <span style="font-size:18px;">⚙️</span><p class="text-xs fw-700 c-text2 mt-4">Settings</p>
+      </div>
+      <div class="card text-center" onclick="navigate('customerSupport')" style="cursor:pointer;padding:14px;">
+        <span style="font-size:18px;">💬</span><p class="text-xs fw-700 c-text2 mt-4">Help</p>
+      </div>
+    </div>`;
+
+  // Crisis
+  html += `
+    <div onclick="navigate('support')" style="padding:14px 20px;background:var(--rose-l);border-radius:var(--r-md);display:flex;align-items:center;gap:12px;cursor:pointer;border:1px solid rgba(231,127,103,0.2);">
+      <span style="font-size:20px;">🆘</span>
+      <div><p class="fw-700 text-sm c-rose">Need immediate support?</p>
+      <p class="text-xs c-text2">Access crisis resources & helplines</p></div>
+    </div>`;
+
+  html += `</div></div>`;
+  return html;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   SCREEN: CHECK-IN
+   ══════════════════════════════════════════════════════════════════ */
+function renderCheckin() {
+  const step = ui.checkinStep;
+  let html = `
+    <button class="btn-back" onclick="navigate('home')">← Back</button>
+    <h2 class="heading mb-8" style="font-size:26px;">Daily Check-In</h2>
+    <p class="text-sm c-text2 lh-15 mb-24">${step===0?"How are you feeling right now?":CHECKIN_QS[step]}</p>`;
+
+  if(step===0) {
+    html += `<div class="mood-grid">`;
+    MOODS.forEach(m=>{
+      html += `<div class="mood-opt ${ui.selectedMood===m.key?'sel':''}" onclick="doSelectMood('${m.key}')">
+        <span class="emoji">${m.emoji}</span>${m.label}</div>`;
+    });
+    html += `</div>
+      <textarea id="mood-note" placeholder="Any thoughts about how you're feeling? (optional)" style="min-height:100px;margin-bottom:20px;" oninput="ui.moodNote=this.value">${escHtml(ui.moodNote)}</textarea>
+      <button class="btn" ${!ui.selectedMood?'disabled':''} onclick="ui.checkinStep=1;render();">Continue →</button>`;
+  } else {
+    html += `<textarea id="checkin-answer" placeholder="Share your thoughts..." style="min-height:120px;margin-bottom:20px;" oninput="ui.checkinAnswers[${step}]=this.value">${escHtml(ui.checkinAnswers[step]||'')}</textarea>
+      <div class="flex gap-12">
+        <button class="btn-outline flex-1" onclick="ui.checkinStep--;render();">← Back</button>
+        <button class="btn" style="flex:2;" onclick="${step<3?'ui.checkinStep++;render();':'doSubmitCheckin();'}">${step<3?'Next →':'Complete Check-In ✓'}</button>
+      </div>
+      <div class="dots">
+        ${[0,1,2,3].map(i=>`<div class="dot ${i<=step?'active':''}"></div>`).join('')}
+      </div>`;
+  }
+  return html;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   SCREEN: JOURNAL
+   ══════════════════════════════════════════════════════════════════ */
+function renderJournal() {
+  const entries = state.journals.entries;
+  let html = `
+    <h2 class="heading mb-4" style="font-size:26px;">Journal</h2>
+    <p class="text-sm c-text2 mb-20">Reflect on your thoughts and feelings</p>
+    <div class="chips">
+      <div class="chip ${ui.journalMode==='guided'?'active':''}" onclick="ui.journalMode='guided';render();">✨ Guided</div>
+      <div class="chip ${ui.journalMode==='free'?'active':''}" onclick="ui.journalMode='free';render();">✏️ Free Write</div>
+    </div>`;
+
+  if(ui.journalMode==='guided') {
+    html += `
+      <div class="card" style="background:var(--lav-l);border:1px solid rgba(184,169,212,0.2);">
+        <p class="text-sm fw-700 c-lav mb-4">Today's Prompt</p>
+        <p class="fw-600 lh-15" style="font-size:15px;">${PROMPTS[ui.promptIdx]}</p>
+        <button class="btn-back mt-8 c-lav" onclick="ui.promptIdx=(ui.promptIdx+1)%${PROMPTS.length};render();">↻ New prompt</button>
+      </div>`;
+  }
+
+  html += `
+    <textarea id="journal-text" placeholder="${ui.journalMode==='guided'?'Reflect on the prompt above...':'Write freely about anything on your mind...'}" oninput="ui.journalText=this.value" style="margin-bottom:16px;">${escHtml(ui.journalText)}</textarea>
+    <div class="flex gap-12 mb-24">
+      <button class="btn flex-1" ${!ui.journalText.trim()||ui.analysing?'disabled':''} onclick="doAnalyseSentiment()">${ui.analysing?'Analysing...':'✨ Analyse'}</button>
+      <button class="btn btn-warm flex-1" ${!ui.journalText.trim()?'disabled':''} onclick="doSaveJournal()">💾 Save</button>
+    </div>`;
+
+  if(ui.analysing) {
+    html += `<div class="card text-center"><div class="ldots"><i></i><i></i><i></i></div><p class="text-sm c-muted">Analysing emotional tone...</p></div>`;
+  }
+
+  if(ui.sentimentResult && !ui.analysing) {
+    const s = ui.sentimentResult;
+    const col = sc(s.primary_emotion);
+    html += `
+      <div class="card anim-slide mb-24" style="background:${col.bg};border:1px solid ${col.c}22;">
+        <span class="stag mb-12" style="background:${col.c}22;color:${col.c};">${s.primary_emotion} • ${s.intensity}</span>
+        <p class="text-sm lh-16 mb-12">${escHtml(s.summary)}</p>
+        <div style="padding:12px 16px;background:rgba(255,255,255,0.6);border-radius:var(--r-sm);">
+          <p class="text-sm c-text2 lh-15">💡 <strong>Suggestion:</strong> ${escHtml(s.suggestion)}</p>
+        </div>
+      </div>`;
+  }
+
+  if(entries.length > 0) {
+    html += `<h3 class="fw-700 mb-12" style="font-size:16px;">Past Entries (${entries.length})</h3>`;
+    entries.slice(0,10).forEach(j=>{
+      const col = j.sentiment ? sc(j.sentiment.primary_emotion) : null;
+      html += `<div class="card">
+        <div class="flex justify-between items-center mb-8">
+          <span class="text-xs c-muted">${j.date}</span>
+          ${col?`<span class="stag" style="background:${col.bg};color:${col.c};font-size:11px;">${j.sentiment.primary_emotion}</span>`:''}
+        </div>
+        ${j.prompt?`<p class="text-xs fw-700 c-lav mb-4">${escHtml(j.prompt)}</p>`:''}
+        <p class="text-sm c-text2 lh-16">${escHtml(j.text.length>150?j.text.slice(0,150)+'...':j.text)}</p>
+      </div>`;
+    });
+  }
+  return html;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   SCREEN: GRAPHS
+   ══════════════════════════════════════════════════════════════════ */
+function renderGraphs() {
+  const h = state.moods.history;
+  if(h.length===0) {
+    return `
+      <h2 class="heading mb-4" style="font-size:26px;">Mood Insights</h2>
+      <p class="text-sm c-text2 mb-20">Understand your emotional patterns</p>
+      <div class="card text-center" style="padding:40px;">
+        <span style="font-size:48px;">📊</span>
+        <h3 class="fw-700 mt-12 mb-8" style="font-size:16px;">No mood data yet</h3>
+        <p class="text-sm c-text2 lh-15">Complete your first daily check-in to see insights here.</p>
+        <button class="btn mt-20" onclick="navigate('checkin')">Start Check-In →</button>
+      </div>`;
+  }
+
+  const moodCounts = {};
+  h.forEach(m=>{ moodCounts[m.mood]=(moodCounts[m.mood]||0)+1; });
+  const topArr = Object.entries(moodCounts).sort((a,b)=>b[1]-a[1]);
+  const topMood = topArr[0];
+  const avg = (h.reduce((s,m)=>s+m.value,0)/h.length).toFixed(1);
+
+  let html = `
+    <h2 class="heading mb-4" style="font-size:26px;">Mood Insights</h2>
+    <p class="text-sm c-text2 mb-20">Understand your emotional patterns</p>
+    <div class="chips mb-24">
+      ${["1w","2w","1m"].map(k=>`<div class="chip ${ui.graphPeriod===k?'active':''}" onclick="ui.graphPeriod='${k}';render();">${k==='1w'?'1 Week':k==='2w'?'2 Weeks':'Month'}</div>`).join('')}
+    </div>
+
+    <div class="card">
+      <h3 class="fw-700 mb-16" style="font-size:15px;">Mood Over Time</h3>
+      <div class="chart-wrap"><canvas id="chart-line"></canvas></div>
+    </div>
+
+    <div class="card">
+      <h3 class="fw-700 mb-16" style="font-size:15px;">Mood Distribution</h3>`;
+  MOODS.forEach(m=>{
+    const cnt = moodCounts[m.key]||0;
+    const pct = Math.round((cnt/h.length)*100);
+    html += `
+      <div class="flex items-center gap-8" style="margin-bottom:10px;">
+        <span style="font-size:20px;width:32px;text-align:center;">${m.emoji}</span>
+        <div class="flex-1">
+          <div class="flex justify-between mb-4"><span class="text-sm fw-600">${m.label}</span><span class="text-xs c-muted">${pct}%</span></div>
+          <div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:${m.color};"></div></div>
+        </div>
+      </div>`;
+  });
+  html += `</div>`;
+
+  html += `
+    <div class="grid-2">
+      <div class="card text-center"><p style="font-size:28px;font-weight:700;color:var(--sage);">${avg}</p><p class="text-xs c-muted fw-600">Avg Mood Score</p></div>
+      <div class="card text-center"><p style="font-size:28px;">${topMood?moodByKey(topMood[0]).emoji:'—'}</p><p class="text-xs c-muted fw-600">Most Frequent</p></div>
+    </div>
+
+    <div class="card">
+      <h3 class="fw-700 mb-16" style="font-size:15px;">Mood by Day of Week</h3>
+      <div class="chart-wrap"><canvas id="chart-bar"></canvas></div>
+    </div>
+
+    <div class="card" style="background:var(--bg2);text-align:center;">
+      <p class="text-xs c-muted fw-600">📊 ${h.length} mood entries recorded • Data saved locally</p>
+    </div>`;
+  return html;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   SCREEN: QUESTS
+   ══════════════════════════════════════════════════════════════════ */
+function renderQuests() {
+  const p = state.progress;
+  const pct = Math.round((p.completedQuests.length/QUESTS.length)*100);
+
+  let html = `
+    <h2 class="heading mb-4" style="font-size:26px;">Self-Care Quests</h2>
+    <p class="text-sm c-text2 mb-20">Small steps, big impact on your wellbeing</p>
+
+    <div class="card" style="background:linear-gradient(135deg,var(--sage-l),#D2EBD4);">
+      <div class="flex justify-between items-center mb-12">
+        <span class="fw-700" style="font-size:15px;">Today's Progress</span>
+        <span class="fw-700 c-sage" style="font-size:15px;">${p.completedQuests.length}/${QUESTS.length}</span>
+      </div>
+      <div class="prog-bar" style="height:10px;"><div class="prog-fill" style="width:${pct}%;"></div></div>
+      <div class="flex justify-between mt-12">
+        <div class="streak" style="padding:8px 16px;font-size:13px;">🔥 ${p.streak} day streak</div>
+        <div style="padding:8px 16px;background:rgba(255,255,255,0.6);border-radius:var(--r-full);font-weight:700;font-size:13px;color:var(--lav);">💎 ${p.totalPoints} pts</div>
+      </div>
+      <p class="text-tiny c-muted mt-8 text-center">Total quests completed: ${p.totalQuestsCompleted} all time</p>
+    </div>
+
+    <h3 class="fw-700 mb-12" style="font-size:16px;">Daily Quests</h3>`;
+  QUESTS.slice(0,4).forEach(q=>{
+    const d=p.completedQuests.includes(q.id);
+    html+=`<div class="quest ${d?'done':''}" onclick="doCompleteQuest(${q.id})">
+      <div class="quest-ico">${d?'✅':q.icon}</div>
+      <div class="flex-1"><p class="fw-700 text-sm">${q.title}</p><p class="text-xs c-muted">${q.desc}</p></div>
+      <span class="text-sm fw-700 ${d?'c-sage':'c-warm'}">${d?'Done!':'+'+q.points}</span>
+    </div>`;
+  });
+
+  html += `<h3 class="fw-700 mb-12 mt-24" style="font-size:16px;">Bonus Quests</h3>`;
+  QUESTS.slice(4).forEach(q=>{
+    const d=p.completedQuests.includes(q.id);
+    html+=`<div class="quest ${d?'done':''}" onclick="doCompleteQuest(${q.id})">
+      <div class="quest-ico">${d?'✅':q.icon}</div>
+      <div class="flex-1"><p class="fw-700 text-sm">${q.title}</p><p class="text-xs c-muted">${q.desc}</p></div>
+      <span class="text-sm fw-700 ${d?'c-sage':'c-warm'}">${d?'Done!':'+'+q.points}</span>
+    </div>`;
+  });
+
+  html += `<h3 class="fw-700 mb-12 mt-24" style="font-size:16px;">Achievement Badges</h3><div class="grid-3">`;
+  BADGES.forEach(b=>{
+    const earned = p.earnedBadgeIds.includes(b.id);
+    html += `<div class="badge">
+      <div class="badge-ico ${earned?'earned':'locked'}">${b.icon}</div>
+      <p class="text-xs fw-700" style="color:${earned?'var(--text)':'var(--muted)'};">${b.title}</p>
+      <p style="font-size:10px;color:var(--muted);">${b.desc}</p>
+    </div>`;
+  });
+  html += `</div>`;
+  return html;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   SCREEN: INSIGHTS
+   ══════════════════════════════════════════════════════════════════ */
+function renderInsights() {
+  const h = state.moods.history;
+  const p = state.progress;
+  const ins = state.insights;
+
+  const moodCounts={};
+  h.forEach(m=>{moodCounts[m.mood]=(moodCounts[m.mood]||0)+1;});
+  const topArr = Object.entries(moodCounts).sort((a,b)=>b[1]-a[1]);
+  const topMood = topArr[0];
+  const avg = h.length ? (h.reduce((s,m)=>s+m.value,0)/h.length).toFixed(1) : 0;
+
+  const r5=h.slice(-5);
+  const stressN=r5.filter(m=>m.mood==="stressed"||m.mood==="anxious").length;
+  let prediction="";
+  if(stressN>=3)prediction="You've been feeling stressed recently. Consider a relaxation exercise today to help reset.";
+  else if(r5.length>=3&&r5.every(m=>m.value>=4))prediction="You've been on a great streak! Keep nurturing these positive habits.";
+
+  let html = `
+    <h2 class="heading mb-4" style="font-size:26px;">AI Insights</h2>
+    <p class="text-sm c-text2 mb-20">Personalised recommendations powered by AI</p>
+    <button class="btn mb-24" ${ui.loadingSugg?'disabled':''} onclick="doFetchSuggestions()">${ui.loadingSugg?'Generating Insights...':'✨ Get Personalised Suggestions'}</button>`;
+
+  if(ins.lastGenerated && !ui.loadingSugg) {
+    html += `<p class="text-tiny c-muted text-center mb-16">Last generated: ${new Date(ins.lastGenerated).toLocaleString("en-GB")}</p>`;
+  }
+
+  if(ui.loadingSugg) {
+    html += `<div class="card text-center mb-20"><div class="ldots"><i></i><i></i><i></i></div><p class="text-sm c-muted">Analysing your mood patterns...</p></div>`;
+  }
+
+  if(ins.aiSuggestions.length>0 && !ui.loadingSugg) {
+    const colors = [{bg:'var(--sage-l)',b:'var(--sage)'},{bg:'var(--warm-l)',b:'var(--warm)'},{bg:'var(--lav-l)',b:'var(--lav)'},{bg:'var(--sky-l)',b:'var(--sky)'}];
+    html += `<h3 class="fw-700 mb-12" style="font-size:16px;">Recommended For You</h3>`;
+    ins.aiSuggestions.forEach((s,i)=>{
+      const c=colors[i%4];
+      html += `<div class="card anim-slide" style="background:${c.bg};border-left:4px solid ${c.b};">
+        <div class="flex gap-12" style="align-items:flex-start;">
+          <span style="font-size:28px;">${s.icon||'✨'}</span>
+          <div><p class="fw-700 mb-4" style="font-size:15px;">${escHtml(s.title)}</p>
+          <p class="text-sm c-text2 lh-15">${escHtml(s.description)}</p>
+          <span style="display:inline-block;margin-top:8px;padding:4px 10px;background:rgba(255,255,255,0.6);border-radius:var(--r-full);font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;">${escHtml(s.category||'wellbeing')}</span></div>
+        </div>
+      </div>`;
+    });
+  }
+
+  html += `<h3 class="fw-700 mb-12 mt-20" style="font-size:16px;">Mood Patterns</h3>`;
+  html += `<div class="card" style="background:var(--sky-l);border-left:4px solid var(--sky);">
+    <div class="flex gap-12" style="align-items:flex-start;"><span style="font-size:24px;">📊</span>
+    <div><p class="fw-700 text-sm mb-4">Weekly Pattern</p>
+    <p class="text-sm c-text2 lh-15">${topMood?`Your most frequent mood: "${topMood[0]}" (${topMood[1]} times). `:''}${h.length?`Average score: ${avg}/5.`:'Start checking in to reveal patterns.'}</p></div></div></div>`;
+
+  html += `<div class="card" style="background:var(--warm-l);border-left:4px solid var(--warm);">
+    <div class="flex gap-12" style="align-items:flex-start;"><span style="font-size:24px;">🧩</span>
+    <div><p class="fw-700 text-sm mb-4">Activity Connection</p>
+    <p class="text-sm c-text2 lh-15">${p.totalQuestsCompleted} self-care quests completed all time. Regular wellbeing activities are linked to improved mood.</p></div></div></div>`;
+
+  html += `<div class="card" style="background:var(--lav-l);border-left:4px solid var(--lav);">
+    <div class="flex gap-12" style="align-items:flex-start;"><span style="font-size:24px;">📝</span>
+    <div><p class="fw-700 text-sm mb-4">Journaling Impact</p>
+    <p class="text-sm c-text2 lh-15">${state.journals.entries.length} journal ${state.journals.entries.length===1?'entry':'entries'} written. Expressive writing helps process emotions.</p></div></div></div>`;
+
+  if(prediction) {
+    html += `<div class="card mt-12" style="background:linear-gradient(135deg,var(--sky-l),#D4EDF5);border:1px solid rgba(130,204,221,0.3);">
+      <div class="flex gap-12" style="align-items:flex-start;"><span style="font-size:24px;">🔮</span>
+      <div><p class="fw-700 text-sm mb-4">Predictive Insight</p>
+      <p class="text-sm c-text2 lh-15">${prediction}</p></div></div></div>`;
+  }
+  return html;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   SCREEN: CRISIS SUPPORT
+   ══════════════════════════════════════════════════════════════════ */
+function renderSupport() {
+  let html = `
+    <h2 class="heading mb-4" style="font-size:26px;">Crisis Support</h2>
+    <p class="text-sm c-text2 lh-15 mb-8">If you're in crisis or need immediate help, please reach out.</p>
+    <div style="padding:16px 20px;background:var(--rose-l);border-radius:var(--r-md);margin-bottom:24px;border:1px solid rgba(231,127,103,0.2);">
+      <p class="fw-700 text-sm c-rose mb-4">In immediate danger? Call 999</p>
+      <p class="text-sm c-text2">If you or someone you know is in immediate danger, please call emergency services.</p>
+    </div>
+    <h3 class="fw-700 mb-12" style="font-size:16px;">Helplines & Resources</h3>`;
+  CRISIS.forEach(r=>{
+    html += `<div class="crisis"><div>
+      <p class="fw-700" style="font-size:15px;">${r.name}</p>
+      <p class="fw-700 c-rose" style="font-size:16px;margin-top:2px;">${r.num}</p>
+      <p class="text-xs c-muted" style="margin-top:2px;">${r.desc}</p>
+    </div></div>`;
+  });
+  html += `<div class="mt-24" style="padding:20px;background:var(--bg2);border-radius:var(--r-md);">
+    <p class="text-sm c-text2 lh-16 text-center">You are not alone. Reaching out for help is a sign of strength. 💚</p>
+  </div>`;
+  return html;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   SCREEN: CUSTOMER SUPPORT
+   ══════════════════════════════════════════════════════════════════ */
+function renderCustomerSupport() {
+  if(ui.supportSubmitted) {
+    return `
+      <button class="btn-back" onclick="navigate('home')">← Back</button>
+      <div class="card text-center" style="padding:40px;">
+        <span style="font-size:48px;">✅</span>
+        <h3 class="fw-700 mt-12 mb-8" style="font-size:18px;">Message Sent!</h3>
+        <p class="text-sm c-text2 lh-15">Thank you. We'll get back to you soon.</p>
+        <button class="btn-outline mt-20" onclick="ui.supportSubmitted=false;ui.supportForm={name:'',email:'',message:'',type:'feedback'};render();">Send Another</button>
+      </div>`;
+  }
+  const f = ui.supportForm;
+  let html = `
+    <button class="btn-back" onclick="navigate('home')">← Back</button>
+    <h2 class="heading mb-4" style="font-size:26px;">Customer Support</h2>
+    <p class="text-sm c-text2 mb-24">We're here to help with any issues</p>
+    <div class="chips mb-20">
+      ${[{k:'feedback',l:'💬 Feedback'},{k:'bug',l:'🐛 Bug Report'},{k:'question',l:'❓ Question'},{k:'assistance',l:'🤝 Assistance'}].map(t=>
+        `<div class="chip ${f.type===t.k?'active':''}" onclick="ui.supportForm.type='${t.k}';render();">${t.l}</div>`
+      ).join('')}
+    </div>
+    <input type="text" placeholder="Your name" value="${escHtml(f.name)}" oninput="ui.supportForm.name=this.value" style="margin-bottom:12px;">
+    <input type="email" placeholder="Your email" value="${escHtml(f.email)}" oninput="ui.supportForm.email=this.value" style="margin-bottom:12px;">
+    <textarea placeholder="Describe your issue or feedback..." oninput="ui.supportForm.message=this.value" style="margin-bottom:20px;">${escHtml(f.message)}</textarea>
+    <button class="btn" ${(!f.name||!f.email||!f.message)?'disabled':''} onclick="ui.supportSubmitted=true;render();">Send Message →</button>`;
+  return html;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   SCREEN: SETTINGS
+   ══════════════════════════════════════════════════════════════════ */
+function renderSettings() {
+  const p = state.profile;
+  const r = p.reminders || {};
+  const h = state.moods.history;
+  const pr = state.progress;
+
+  let html = `
+    <button class="btn-back" onclick="navigate('home')">← Back</button>
+    <h2 class="heading mb-4" style="font-size:26px;">Settings</h2>
+    <p class="text-sm c-text2 mb-24">Manage preferences and data</p>
+
+    <div class="card">
+      <h3 class="fw-700 mb-4" style="font-size:15px;">Reminder Preferences</h3>
+      <p class="text-xs c-muted mb-12">Choose which reminders you'd like</p>`;
+  [{k:'dailyCheckin',l:'Daily Mood Check-In',i:'🌱'},{k:'journaling',l:'Journaling Prompts',i:'📝'},{k:'quests',l:'Self-Care Quests',i:'⭐'},{k:'hydration',l:'Hydration Reminders',i:'💧'},{k:'relaxation',l:'Relaxation Breaks',i:'🧘'}].forEach(rem=>{
+    html += `<div class="toggle-row">
+      <div class="flex items-center gap-8"><span style="font-size:18px;">${rem.i}</span><span class="text-sm fw-600">${rem.l}</span></div>
+      <button class="toggle ${r[rem.k]?'on':''}" onclick="doToggleReminder('${rem.k}')"></button>
+    </div>`;
+  });
+  html += `</div>`;
+
+  html += `<div class="card"><h3 class="fw-700 mb-12" style="font-size:15px;">Your Data Summary</h3>`;
+  [{l:'Mood Entries',v:h.length,i:'📊'},{l:'Journal Entries',v:state.journals.entries.length,i:'📝'},{l:'Quests Completed (All Time)',v:pr.totalQuestsCompleted,i:'⭐'},{l:'Total Points Earned',v:pr.totalPoints,i:'💎'},{l:'Current Streak',v:pr.streak+' days',i:'🔥'},{l:'Badges Earned',v:pr.earnedBadgeIds.length+'/'+BADGES.length,i:'🏅'}].forEach((item,i,arr)=>{
+    html += `<div class="flex justify-between items-center" style="padding:8px 0;${i<arr.length-1?'border-bottom:1px solid var(--bg2);':''}">
+      <span class="text-sm c-text2">${item.i} ${item.l}</span>
+      <span class="text-sm fw-700">${item.v}</span>
+    </div>`;
+  });
+  html += `</div>`;
+
+  html += `
+    <div class="card" style="background:var(--sage-l);">
+      <div class="flex items-center gap-8 mb-8"><span style="font-size:18px;">🔒</span><h3 class="fw-700" style="font-size:15px;">Privacy & Security</h3></div>
+      <p class="text-sm c-text2 lh-16">Your data is stored locally on this device only. Journal entries, mood records, and personal information never leave your browser. No server, no cloud — your data stays private.</p>
+    </div>
+
+    <div class="card" style="background:var(--sky-l);">
+      <div class="flex items-center gap-8">
+        <span style="font-size:18px;">💾</span>
+        <div><p class="text-sm fw-700">Auto-Save Active</p>
+        <p class="text-xs c-text2">All changes saved automatically via localStorage. Your data is safe even if you close or refresh the browser.</p></div>
+      </div>
+    </div>
+
+    <div class="card"><p class="text-sm c-muted text-center">Member since ${new Date(p.createdAt).toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"})}</p></div>
+
+    <div style="padding:20px;border:2px solid var(--rose);border-radius:var(--r-md);margin-bottom:20px;">
+      <h3 class="fw-700 c-rose mb-8" style="font-size:15px;">Danger Zone</h3>
+      <p class="text-sm c-text2 lh-15 mb-16">Permanently delete all mood entries, journal entries, quests progress, badges, and preferences. This cannot be undone.</p>
+      <button class="btn-danger w-full" onclick="doShowResetModal()">🗑️ Reset All Data</button>
+    </div>`;
+  return html;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   CHART INIT (Chart.js)
+   ══════════════════════════════════════════════════════════════════ */
+function initCharts() {
+  const h = state.moods.history;
+
+  // Home mini chart
+  const homeCanvas = document.getElementById('chart-home');
+  if(homeCanvas && h.length>1) {
+    const data = h.slice(-7);
+    charts.home = new Chart(homeCanvas, {
+      type:'line',
+      data:{ labels:data.map(d=>d.day), datasets:[{
+        data:data.map(d=>d.value), fill:true,
+        backgroundColor:'rgba(123,174,127,0.15)', borderColor:'#7BAE7F', borderWidth:2.5,
+        pointBackgroundColor:'#7BAE7F', pointRadius:4, tension:0.4,
+      }]},
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false},tooltip:{
+        callbacks:{label:ctx=>{const m=MOODS.find(m=>m.value===ctx.parsed.y);return m?m.label:ctx.parsed.y;}},
+        backgroundColor:'#fff',titleColor:'#2D3436',bodyColor:'#636E72',borderColor:'#eee',borderWidth:1,cornerRadius:12,padding:10,
+      }}, scales:{x:{grid:{display:false},ticks:{font:{size:11,family:'Nunito'},color:'#A4A8AB'}},y:{display:false,min:0,max:5}} },
+    });
+  }
+
+  // Graphs — Line chart
+  const lineCanvas = document.getElementById('chart-line');
+  if(lineCanvas && h.length>0) {
+    const n = ui.graphPeriod==='1w'?7:ui.graphPeriod==='2w'?14:30;
+    const data = h.slice(-n);
+    charts.line = new Chart(lineCanvas, {
+      type:'line',
+      data:{ labels:data.map(d=>d.date), datasets:[{
+        data:data.map(d=>d.value), fill:true,
+        backgroundColor:'rgba(123,174,127,0.2)', borderColor:'#7BAE7F', borderWidth:2.5,
+        pointBackgroundColor:'#7BAE7F', pointRadius:4, tension:0.4,
+      }]},
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false},tooltip:{
+        callbacks:{label:ctx=>{const m=MOODS.find(m=>m.value===ctx.parsed.y);return m?m.label:ctx.parsed.y;}},
+        backgroundColor:'#fff',titleColor:'#2D3436',bodyColor:'#636E72',borderColor:'#eee',borderWidth:1,cornerRadius:12,padding:10,
+      }}, scales:{
+        x:{grid:{display:false},ticks:{font:{size:10,family:'Nunito'},color:'#A4A8AB',maxTicksLimit:7}},
+        y:{min:0,max:5,ticks:{font:{size:10},color:'#A4A8AB',callback:v=>['','😢','😤','😐','😌','😊'][v]||''},grid:{color:'rgba(0,0,0,0.04)'}},
+      }},
+    });
+  }
+
+  // Graphs — Bar chart (day of week)
+  const barCanvas = document.getElementById('chart-bar');
+  if(barCanvas && h.length>0) {
+    const dayData = DAYNAMES.map(day=>{
+      const entries = h.filter(m=>m.day===day);
+      return entries.length ? +(entries.reduce((s,m)=>s+m.value,0)/entries.length).toFixed(1) : 0;
+    });
+    charts.bar = new Chart(barCanvas, {
+      type:'bar',
+      data:{ labels:DAYNAMES, datasets:[{
+        data:dayData, backgroundColor:'#7BAE7F', borderRadius:6, borderSkipped:false,
+      }]},
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false},tooltip:{
+        callbacks:{label:ctx=>ctx.parsed.y.toFixed(1)+' avg mood'},
+        backgroundColor:'#fff',titleColor:'#2D3436',bodyColor:'#636E72',borderColor:'#eee',borderWidth:1,cornerRadius:12,padding:10,
+      }}, scales:{
+        x:{grid:{display:false},ticks:{font:{size:11,family:'Nunito'},color:'#A4A8AB'}},
+        y:{min:0,max:5,ticks:{font:{size:10},color:'#A4A8AB'},grid:{color:'rgba(0,0,0,0.04)'}},
+      }},
+    });
+  }
+}
+
+
+/* ══════════════════════════════════════════════════════════════════
+   ACTION HANDLERS
+   ══════════════════════════════════════════════════════════════════ */
+function doSelectMood(key) {
+  ui.selectedMood = key;
+  render();
+}
+
+function doSubmitCheckin() {
+  if(!ui.selectedMood) return;
+  const now = new Date();
+  const entry = {
+    id: Date.now(),
+    date: now.toLocaleDateString("en-GB",{day:"numeric",month:"short"}),
+    isoDate: todayStr(),
+    day: DAYNAMES[now.getDay()],
+    value: moodByKey(ui.selectedMood).value,
+    mood: ui.selectedMood,
+    note: ui.moodNote,
+    checkinAnswers: {...ui.checkinAnswers},
+    timestamp: now.toISOString(),
+  };
+
+  state.moods.history.push(entry);
+  state.moods.todayMood = ui.selectedMood;
+  state.moods.todayDate = todayStr();
+
+  // Streak
+  const newStreak = calcStreak(state.progress.lastActiveDate, state.progress.streak);
+  state.progress.streak = newStreak;
+  state.progress.lastActiveDate = todayStr();
+
+  // Badges
+  const b = state.progress.earnedBadgeIds;
+  if(!b.includes('first_checkin')) b.push('first_checkin');
+  if(newStreak>=3 && !b.includes('streak_3')) b.push('streak_3');
+  if(newStreak>=7 && !b.includes('streak_7')) b.push('streak_7');
+
+  // Reset UI
+  ui.selectedMood = null;
+  ui.moodNote = "";
+  ui.checkinAnswers = {};
+  ui.checkinStep = 0;
+
+  saveState();
+  showToast("✨ Mood recorded! Great job checking in today.");
+  navigate('home');
+}
+function doSaveJournal() {
+  if(!ui.journalText.trim()) return;
+  const entry = {
+    id: Date.now(),
+    text: ui.journalText,
+    date: new Date().toLocaleString("en-GB"),
+    isoDate: todayStr(),
+    prompt: ui.journalMode==='guided' ? PROMPTS[ui.promptIdx] : null,
+    sentiment: ui.sentimentResult,
+  };
+  state.journals.entries.unshift(entry);
+
+  // Badge
+  if(state.journals.entries.length>=3 && !state.progress.earnedBadgeIds.includes('journal_3')) {
+    state.progress.earnedBadgeIds.push('journal_3');
+  }
+
+  ui.journalText = "";
+  ui.sentimentResult = null;
+  saveState();
+  showToast("📝 Journal entry saved!");
+  render();
+}
+
+async function doAnalyseSentiment() {
+  if(!ui.journalText.trim() || ui.analysing) return;
+  ui.analysing = true;
+  render();
+
+  try {
+    const resp = await fetch("https://api.anthropic.com/v1/messages", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({
+        model:"claude-sonnet-4-20250514", max_tokens:1000,
+        messages:[{role:"user",content:`Analyse this journal entry for emotional sentiment. Return ONLY valid JSON with no markdown, no backticks, no preamble. Format:
+{"primary_emotion":"<one of: happy,calm,hopeful,grateful,stressed,anxious,sad,frustrated,mixed>","intensity":"<low/medium/high>","summary":"<1-2 sentence empathetic reflection>","suggestion":"<one specific actionable wellbeing suggestion>"}
+
+Journal entry: "${ui.journalText}"`}],
+      }),
+    });
+    const data = await resp.json();
+    const raw = (data.content||[]).map(i=>i.text||'').join('');
+    ui.sentimentResult = JSON.parse(raw.replace(/```json|```/g,'').trim());
+  } catch {
+    ui.sentimentResult = { primary_emotion:"mixed", intensity:"medium",
+      summary:"Thank you for sharing your thoughts. Reflecting on your feelings is an important step.",
+      suggestion:"Try taking a few slow, deep breaths to centre yourself." };
+  }
+  ui.analysing = false;
+  render();
+}
+
+function doCompleteQuest(id) {
+  const p = state.progress;
+  if(p.completedQuests.includes(id)) return;
+  const quest = QUESTS.find(q=>q.id===id);
+  if(!quest) return;
+
+  p.completedQuests.push(id);
+  p.totalQuestsCompleted++;
+  p.totalPoints += quest.points;
+
+  if(p.totalQuestsCompleted>=5 && !p.earnedBadgeIds.includes('quest_5')) p.earnedBadgeIds.push('quest_5');
+  if(p.totalPoints>=100 && !p.earnedBadgeIds.includes('points_100')) p.earnedBadgeIds.push('points_100');
+
+  saveState();
+  showToast(`${quest.icon} +${quest.points} points! Quest completed!`);
+  render();
+}
+
+async function doFetchSuggestions() {
+  if(ui.loadingSugg) return;
+  ui.loadingSugg = true;
+  render();
+
+  const recentMoods = state.moods.history.slice(-7).map(m=>m.mood).join(', ') || 'neutral';
+  try {
+    const resp = await fetch("https://api.anthropic.com/v1/messages", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({
+        model:"claude-sonnet-4-20250514", max_tokens:1000,
+        messages:[{role:"user",content:`Based on these recent moods over 7 days: [${recentMoods}], generate 4 personalised wellbeing suggestions. Return ONLY valid JSON array with no markdown. Format:
+[{"title":"<short title>","description":"<1 sentence>","icon":"<single emoji>","category":"<mindfulness|movement|social|creative|rest>"}]`}],
+      }),
+    });
+    const data = await resp.json();
+    const raw = (data.content||[]).map(i=>i.text||'').join('');
+    state.insights.aiSuggestions = JSON.parse(raw.replace(/```json|```/g,'').trim());
+  } catch {
+    state.insights.aiSuggestions = [
+      {title:"Deep Breathing",description:"Take 5 slow breaths, inhaling for 4 counts and exhaling for 6.",icon:"🌬️",category:"mindfulness"},
+      {title:"Nature Walk",description:"Spend 15 minutes walking outside, noticing sounds around you.",icon:"🌿",category:"movement"},
+      {title:"Gratitude List",description:"Write down 3 specific things you're grateful for today.",icon:"✨",category:"creative"},
+      {title:"Gentle Stretching",description:"Do a 5-minute stretch to release body tension.",icon:"🧘",category:"rest"},
+    ];
+  }
+  state.insights.lastGenerated = new Date().toISOString();
+  ui.loadingSugg = false;
+  saveState();
+  render();
+}
+
+function doToggleReminder(key) {
+  state.profile.reminders[key] = !state.profile.reminders[key];
+  saveState();
+  render();
+}
+
+function doShowResetModal() {
+  showModal(`
+    <span style="font-size:40px;display:block;margin-bottom:12px;">⚠️</span>
+    <h3 class="fw-700 mb-8" style="font-size:18px;">Reset All Data?</h3>
+    <p class="text-sm c-text2 lh-15 mb-24">This will permanently delete all mood entries, journals, quests, badges, and preferences. This cannot be undone.</p>
+    <div class="flex gap-12">
+      <button class="btn-outline flex-1" onclick="hideModal()">Cancel</button>
+      <button class="btn-danger flex-1" onclick="doResetAll()">Delete Everything</button>
+    </div>
+  `);
+}
+
+function doResetAll() {
+  Object.values(KEYS).forEach(k=>remove(k));
+  state.profile = { createdAt:new Date().toISOString(), reminders:{dailyCheckin:true,journaling:true,quests:true,hydration:false,relaxation:false} };
+  state.moods = { history:[], todayMood:null, todayDate:null };
+  state.journals = { entries:[] };
+  state.progress = { completedQuests:[], completedQuestsDate:null, totalQuestsCompleted:0, totalPoints:0, streak:0, lastActiveDate:null, earnedBadgeIds:[] };
+  state.insights = { aiSuggestions:[], lastGenerated:null };
+  saveState();
+  hideModal();
+  showToast("🔄 All data has been reset.");
+  navigate('home');
+}
+
+
+/* ══════════════════════════════════════════════════════════════════
+   EVENT LISTENERS
+   ══════════════════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', boot);
+
+document.getElementById('nav').addEventListener('click', e => {
+  const btn = e.target.closest('.nav-btn');
+  if(btn) navigate(btn.dataset.screen);
+});
+
+document.getElementById('modal-overlay').addEventListener('click', e => {
+  if(e.target === document.getElementById('modal-overlay')) hideModal();
+});
+</script>
+<button onclick="toggleChat()" 
+  style="position:fixed;bottom:20px;right:20px;background:#7BAE7F;color:white;border:none;border-radius:50%;width:60px;height:60px;font-size:24px;cursor:pointer;z-index:9999;backdrop-filter: blur(5px);">
+  💬
+</button>
+<div id="chatbot" style="display:none;position:fixed;bottom:90px;right:20px;width:300px;background:white;border-radius:24px;box-shadow:0 10px 30px rgba(0,0,0,0.2);overflow:hidden;z-index:9999;">
+<div style="background:#7BAE7F;color:white;padding:10px;font-weight:bold;">
+    AI Chat 🌿
+</div>
+<div id="chat-messages" style="height:200px;overflow-y:auto;padding:10px;"></div>
+<div style="display:flex;">
+<input id="chat-input" style="flex:1;padding:8px;border:none;" placeholder="Type...">
+<button onclick="sendMessage()" style="background:#7BAE7F;color:white;border:none;padding:8px;">Send</button>
+</div>
+
+</div>
+<script>
+function toggleChat() {
+  const chat = document.getElementById("chatbot");
+
+  if (chat.style.display === "none") {
+    chat.style.display = "block";
+  } else {
+    chat.style.display = "none";
+  }
+}  
+async function sendMessage() {
+const input = document.getElementById("chat-input");
+const msg = input.value.trim();
+if (!msg) return;
+addMessage("You", msg);
+input.value = "";
+addMessage("AI", "Typing...");
+try {
+const res = await fetch("http://127.0.0.1:8000/chat", {
+method: "POST",
+headers: {
+"Content-Type": "application/json"
+},
+body: JSON.stringify({ message: msg })
+});
+const data = await res.json();
+removeLast();
+addMessage("AI", data.reply);
+} catch (err) {
+removeLast();
+addMessage("AI", "Error connecting to server.");
+}
+}
+function addMessage(sender, text) {
+  const box = document.getElementById("chat-messages");
+  const div = document.createElement("div");
+
+  div.innerText = text;
+  div.style.margin = "6px 0";
+  div.style.padding = "10px";
+  div.style.maxWidth = "75%";
+  div.style.borderRadius = "16px";
+
+  if (sender === "You") {
+    div.style.background = "#E8F4E5";
+    div.style.marginLeft = "auto";
+  } else {
+    div.style.background = "#F1F1F1";
+  }
+
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+function removeLast() {
+const box = document.getElementById("chat-messages");
+if (box.lastChild) box.removeChild(box.lastChild);
+}
+</script>
+</body>
+</html>
